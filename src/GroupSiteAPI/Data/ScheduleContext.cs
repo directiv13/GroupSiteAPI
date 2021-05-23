@@ -15,5 +15,6 @@ namespace GroupSiteAPI.Data
         public DbSet<User> Users{ get; set; }
         public DbSet<Schedule> ScheduleItems { get; set; }
         public DbSet<UserChoice> UserChoices { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
     }
 }

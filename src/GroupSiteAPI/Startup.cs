@@ -5,13 +5,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+
 using AutoMapper;
 using Npgsql;
 using GroupSiteAPI.Data;
+using GroupSiteAPI.Handlers;
 
 namespace GroupSiteAPI
 {
@@ -31,10 +35,14 @@ namespace GroupSiteAPI
             builder.Username = Configuration["UserID"];
             builder.Password = Configuration["Password"];
 
+            services.AddAuthentication("BasicAuthentication")
+                    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
             services.AddDbContext<ScheduleContext>(opt => opt.UseNpgsql(builder.ConnectionString));
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<IScheduleRepository, ScheduleRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,6 +54,9 @@ namespace GroupSiteAPI
             }
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

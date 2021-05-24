@@ -14,11 +14,8 @@ namespace GroupSiteAPI.Models
         [Required]
         public string Password { get; set; }
         [Required]
-        [MaxLength(50)]
-        public string Name { get; set; }
-        [Required]
-        [MaxLength(50)]
-        public string Surname { get; set; }
+        [MaxLength(100)]
+        public string FullName { get; set; }
         public IEnumerable<UserChoice> UserChoices { get; set; }
     }
 }

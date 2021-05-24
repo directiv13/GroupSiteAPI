@@ -8,7 +8,12 @@ namespace GroupSiteAPI.Data
         bool SaveChanges();
         void MakeChoices(string[] chocies);
         void ChangeChocies(int choiceNumb, string newChoice);
-        IEnumerable<Subject> GetSubjects();
-        IEnumerable<Schedule> GetScheduleItemsByDayWeek(int day, int week);
+        IEnumerable<Schedule> GetObviousSchedules();
+        IEnumerable<Schedule> GetObviousSchedulesByWeek(int weekNumb);
+        IEnumerable<Schedule> GetElectiveSchedules(string email);
+        IEnumerable<Schedule> GetElectiveSchedulesByWeek(string email, int weekNumb);
+        IEnumerable<Subject> GetObviousSubjects();
+        IEnumerable<Subject> GetElectiveSubjects(string email);
+        Subject GetSubjectById(int id);
     }
 }

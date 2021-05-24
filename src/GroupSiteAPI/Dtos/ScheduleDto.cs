@@ -1,9 +1,12 @@
-using System.Collections.Generic;
+using System;
 
 namespace GroupSiteAPI.Dtos
 {
     public class ScheduleDto
     {
-        public IEnumerable<ClassItem>[] Schedule { get; set; }
+        public int DayNumb { get; set; }
+        public int WeekNumb { get; set; }
+        public SubjectDto Subject { get; set; }
+        public TimeSpan StartTime { get; set; }
     }
 }

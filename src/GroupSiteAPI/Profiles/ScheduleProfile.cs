@@ -8,6 +8,7 @@ namespace GroupSiteAPI.Profiles
     {
         public ScheduleProfile()
         {
+            CreateMap<Schedule, ScheduleDto>().ForMember(x => x.Subject, opt => opt.Ignore());
             CreateMap<Subject, SubjectDto>();
         }
     }

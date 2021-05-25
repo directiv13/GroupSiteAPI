@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using GroupSiteAPI.Data;
 using AutoMapper;
 using GroupSiteAPI.Dtos;
+using System.Security.Claims;
 
 namespace GroupSiteAPI.Controllers
 {
@@ -24,10 +25,11 @@ namespace GroupSiteAPI.Controllers
         [HttpGet("{weekNumb}")]
         public ActionResult<IEnumerable<IEnumerable<ScheduleDto>>> GetSchedule(int weekNumb)
         {
-            string email = HttpContext.User.Identity.Name;
+            var claimsIdentity = this.User.Identity as ClaimsIdentity;
+            var userId = int.Parse(claimsIdentity.FindFirst(ClaimTypes.Name)?.Value);
 
             var obviousSchedules = _repo.GetObviousSchedulesByWeek(weekNumb);
-            var electiveSchedules = _repo.GetElectiveSchedulesByWeek(email, weekNumb);
+            var electiveSchedules = _repo.GetElectiveSchedulesByWeek(userId, weekNumb);
 
             List<ScheduleDto>[] resultSchedule = new List<ScheduleDto>[7];
             foreach (var schedule in obviousSchedules)
@@ -52,6 +54,18 @@ namespace GroupSiteAPI.Controllers
             }
 
             return resultSchedule;
+        }
+
+        [HttpPost("choice")]
+        public ActionResult CreateChoice(string[] choices)
+        {
+            var claimsIdentity = this.User.Identity as ClaimsIdentity;
+            var userId = int.Parse(claimsIdentity.FindFirst(ClaimTypes.Name)?.Value);
+
+            _repo.MakeChoices(userId, choices);
+            _repo.SaveChanges();
+
+            return NoContent();
         }
     }
 }

@@ -12,7 +12,9 @@ namespace GroupSiteAPI.Models
         [EmailAddress]
         public string Email { get; set; }
         [Required]
-        public string Password { get; set; }
+        public byte[] PasswordHash { get; set; }
+        [Required]
+        public byte[] PasswordSalt { get; set; }
         [Required]
         [MaxLength(100)]
         public string FullName { get; set; }

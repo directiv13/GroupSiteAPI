@@ -15,11 +15,49 @@ namespace GroupSiteAPI.Data
         {
             throw new System.NotImplementedException();
         }
-        public void MakeChoices(string[] chocies)
+        public void MakeChoices(int id, string[] choices)
         {
-            throw new System.NotImplementedException();
+            var userChoices = GetChoices(id);
+
+            if(userChoices.Count() > 0)
+            {
+                foreach (var choice in userChoices)
+                    DeleteChoice(choice);
+            }
+
+            List<Subject> subjects = new List<Subject>();
+            foreach (string choice in choices)
+            {
+                var subject = _context.Subjects.FirstOrDefault(s => s.Name == choice && s.IsElective);
+                if(subject != null)
+                    subjects.Add(subject);
+                else
+                {
+                    throw new System.ArgumentException("There is no elective subject as " + choice);
+                }
+            }
+
+            foreach (var subject in subjects)
+            {
+                _context.UserChoices.Add(new UserChoice()
+                {
+                    UserId = id,
+                    SubjectId = subject.Id
+                });
+            }
         }
 
+        public IEnumerable<UserChoice> GetChoices(int id)
+        {
+            return _context.UserChoices.Where(us => us.UserId == id).ToList();
+        }
+
+        public void DeleteChoice(UserChoice choice)
+        {
+            if (choice == null)
+                throw new System.ArgumentNullException(nameof(choice));
+            _context.UserChoices.Remove(choice);
+        }
         public IEnumerable<Schedule> GetObviousSchedules()
         {
             return _context.ScheduleItems.Where(si => !si.Subject.IsElective).ToList();
@@ -29,10 +67,9 @@ namespace GroupSiteAPI.Data
             return _context.ScheduleItems.Where(si => !si.Subject.IsElective && si.WeekNumb == weekNumb).ToList();
         }
 
-        public IEnumerable<Schedule> GetElectiveSchedules(string email)
+        public IEnumerable<Schedule> GetElectiveSchedules(int id)
         {
-            var user = GetUser(email);
-            var userChoices = _context.UserChoices.Where(uc => uc.UserId == user.Id).ToList();
+            var userChoices = _context.UserChoices.Where(uc => uc.UserId == id).ToList();
 
             List<Schedule> electiveSchedule = new List<Schedule>();
             foreach(var choice in userChoices)
@@ -42,10 +79,9 @@ namespace GroupSiteAPI.Data
 
             return electiveSchedule;
         }
-        public IEnumerable<Schedule> GetElectiveSchedulesByWeek(string email, int weekNumb)
+        public IEnumerable<Schedule> GetElectiveSchedulesByWeek(int id, int weekNumb)
         {
-            var user = GetUser(email);
-            var userChoices = _context.UserChoices.Where(uc => uc.UserId == user.Id).ToList();
+            var userChoices = _context.UserChoices.Where(uc => uc.UserId == id).ToList();
 
             List<Schedule> electiveSchedule = new List<Schedule>();
             foreach(var choice in userChoices)
@@ -60,11 +96,9 @@ namespace GroupSiteAPI.Data
         {
             return _context.Subjects.Where(s => !s.IsElective);
         }
-        public IEnumerable<Subject> GetElectiveSubjects(string email)
+        public IEnumerable<Subject> GetElectiveSubjects(int id)
         {
-            User user = GetUser(email);
-
-            var userChoices = _context.UserChoices.Where(uc => uc.UserId == user.Id).ToList();
+            var userChoices = _context.UserChoices.Where(uc => uc.UserId == id).ToList();
 
             List<Subject> electiveSubjects = new List<Subject>();
             foreach(var choice in userChoices)
@@ -78,11 +112,10 @@ namespace GroupSiteAPI.Data
         {
             return _context.Subjects.Single(s => s.Id == id);
         }
-        public User GetUser(string email)
+        public User GetUser(int id)
         {
-            var user = _context.Users.Where(user => user.Email == email).FirstOrDefault();
-            user.Password = null;
-
+            var user = _context.Users.Where(user => user.Id == id).FirstOrDefault();
+            
             return user;
         }
 
